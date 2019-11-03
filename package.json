@@ -1,0 +1,22 @@
+{
+  "name": "zyngk",
+  "version": "1.0.0",
+  "description": "Deals with backend stuff",
+  "main": "test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zyngk/Backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zyngk/Backend/issues"
+  },
+  "homepage": "https://github.com/zyngk/Backend#readme",
+  "dependencies": {
+    "mysql": "^2.17.1"
+  }
+}
