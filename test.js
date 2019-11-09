@@ -44,6 +44,7 @@ con.connect(function(err) {
         id int(11) NOT NULL auto_increment,
         name varchar(100) NOT NULL,
         email varchar(100) NOT NULL,
+        picture varchar(100) NOT NULL,
         status varchar(100) NOT NULL,
         companies varchar(100) NOT NULL,
         linkedin varchar(100) NOT NULL,
