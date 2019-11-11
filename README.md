@@ -9,3 +9,6 @@ npm install
 
 nodemon main
 ```
+
+
+then open index.html in Frontend
