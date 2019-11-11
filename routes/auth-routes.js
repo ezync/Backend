@@ -44,6 +44,17 @@ router.post("/api/v1/sign-in-user", (req, res, next) => {
     })
 });
 
+router.post("/api/v1/sign-in-company", (req, res, next) => {
+    var password = req.body.pw;
+    var username = req.body.name;
+    db.verifyCompany(username, password, (result) => {
+        console.log(result);
+        if (result){
+            res.send('you are logged in as company');
+        }
+    })
+});
+
 router.get('/logout', (req, res) =>{
     //handle with passport
     res.send('logging out')

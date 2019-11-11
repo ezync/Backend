@@ -182,6 +182,30 @@ class databaseHandler {
             return callback(true);
         });
     }
+    /**
+     * VERIFY THE EXISTENCE OF A Company
+     * 
+     * @param {String} name - username
+     * @param {String} password - password
+     */
+    async verifyCompany(name, password, callback){
+        var hash = crypto.createHash('md5').update(password).digest('hex');
+        let query = `SELECT EXISTS(SELECT * FROM companypw WHERE `;
+        query += `(name = '${name}' AND password = '${hash}'))`;
+        this.con.query(query,  function (err, result){
+            if (err) throw err;
+            var rows = JSON.parse(JSON.stringify(result[0]));
+            let out = false;
+            for (var i  in rows){
+                if (rows == 1){
+                    out = true;
+                }
+            }
+            
+            console.log(rows)
+            return callback(true);
+        });
+    }
 }
 
 module.exports = databaseHandler;
