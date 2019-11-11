@@ -20,7 +20,8 @@ const positions = ['Chief Executive Officer (CEO)',
                     'Purchasing Manager',
                     'Onboarding Manager',
                     'Manager',
-                    'Professional staff'];
+                    'Professional staff',
+                    ''];
 const industries = ['Abortion Policy/Anti-Abortion',
                     'Abortion Policy/Pro-Abortion Rights',
                     'Accountants',

@@ -9,7 +9,8 @@ var createCompanyTable = `
         description varchar(100) NOT NULL,
         industries varchar(100) NOT NULL,
         activities varchar(100) NOT NULL,
-        individuals varchar(100) NOT NULL
+        individuals varchar(100) NOT NULL,
+        state tinyint(1) NOT NULL
     )`;
 
 var createActivityTable = `
@@ -28,11 +29,26 @@ var createUserTable = `
         id int(11) NOT NULL PRIMARY KEY auto_increment UNIQUE,
         name varchar(100) NOT NULL UNIQUE,
         email varchar(100) NOT NULL UNIQUE,
-        picture varchar(100) NOT NULL UNIQUE,
+        picture varchar(100) NOT NULL,
         status varchar(100) NOT NULL,
         companies varchar(100) NOT NULL,
         linkedin varchar(100) NOT NULL UNIQUE,
-        position varchar(100) NOT NULL
+        position varchar(100) NOT NULL,
+        state tinyint(1) NOT NULL
+    )`;
+
+var createUserPwTable = `
+    CREATE TABLE IF NOT EXISTS userpw (
+        id int(11) NOT NULL PRIMARY KEY auto_increment UNIQUE,
+        name varchar(100) NOT NULL UNIQUE,
+        password varchar(100) NOT NULL
+    )`;
+
+var createCompanyPwTable = `
+    CREATE TABLE IF NOT EXISTS companypw (
+        id int(11) NOT NULL PRIMARY KEY auto_increment UNIQUE,
+        name varchar(100) NOT NULL UNIQUE,
+        password varchar(100) NOT NULL
     )`;
 
 var createEventTable = `
@@ -51,6 +67,8 @@ module.exports = {
     createUserTable,
     createActivityTable,
     createCompanyTable,
+    createUserPwTable,
+    createCompanyPwTable,
     createEventTable
 }
 

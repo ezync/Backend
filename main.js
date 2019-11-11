@@ -1,49 +1,40 @@
 const express = require('express');
 const _ = require('lodash');
 const bodyParser = require('body-parser');
+const authRoutes = require('./routes/auth-routes.js');
+const { type ,positions,industries} = require('./constants.js')
 
 const {companySchemas, userSchemas,
     activitySchemas, eventSchemas} = require('./schemas.js')
-const dbHandler = require('./dbHandler.js');
 
-const db = new dbHandler();
-
-db.start()
-
-/*
-var gateway = express();
+var app = express();
 
 //Here we are configuring express to use body-parser as middle-ware.
-gateway.use(bodyParser.urlencoded({ extended: false }));
-gateway.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-gateway.listen(3031, () => {
+app.use('/auth', authRoutes);
+
+
+app.use(function(req, res, next) {  // Enable cross origin resource sharing (for app frontend)
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+
+    if ('OPTIONS' == req.method) {
+      res.send(200);
+    }
+    else {
+      next(); 
+    }
+});
+
+app.listen(3031, () => {
     console.log("Database running on port 3031");
 });
 
-gateway.post("/api/v1/signup", async (req, res, next) => {
-    var newCompany = req.body.new;
-    var companyName = null;
-    if (newCompany){
-        var company = new companySchemas();
-        company.name = req.body.name_company;
-        company.logo = req.body.logo_company;
-        company.founded_on = req.body.founded_on_company;
-        company.email = req.body.email_company;
-        company.description = req.body.description_company;
-        company.industries = req.body.industry_company;
-        await db.addCompanyDB(company);
-        companyName = req.body.name_company;
-    }else{
-        companyName = req.body.company;
-    }
-    //var password = req.body.pw;
-    var user = new userSchemas();
-    user.name = req.body.name;
-    user.email= req.body.email;
-    user.linkedin= req.body.linkedin;
-    var comp = await db.getXbyY('company', 'name', companyName);
-    user.companies = user.companies.concat(comp.id);
-    await db.addUserDB(user);
+app.get("/api/v1/accepted-industry", (req, res, next) => {
+    res.send({data:industries});
 });
-*/
+
+

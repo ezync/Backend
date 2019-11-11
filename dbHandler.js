@@ -1,8 +1,8 @@
 var mysql = require('mysql');
-
+var crypto = require('crypto');
 var conf = require('./config.js');
-var {createUserTable, createActivityTable,
-    createCompanyTable, createEventTable} = require('./queries.js');
+var {createUserTable,createUserPwTable, createActivityTable,
+    createCompanyPwTable, createCompanyTable, createEventTable} = require('./queries.js');
 var {companySchemas, userSchemas,
     activitySchemas, eventSchemas} = require('./schemas.js')
 var {type, positions, industries} = require('./constants.js')
@@ -33,6 +33,8 @@ class databaseHandler {
         });
         
         this.createTable(createUserTable, "User");
+        this.createTable(createUserPwTable, "Password - User");
+        this.createTable(createCompanyPwTable, "Password - Company");
         this.createTable(createActivityTable, "Activity");
         this.createTable(createCompanyTable, "Company");
         this.createTable(createEventTable, "Events");
@@ -58,7 +60,7 @@ class databaseHandler {
      * @param {String} Y 
      * @param {Value} value 
      */
-    async getXbyYString(X, Y, value){
+    async getXbyY(X, Y, value){
         const query = `SELECT * FROM ${X} WHERE ${Y} = '${value}'`;
         this.con.query(query, function (err, result){
             if (err) throw err;
@@ -71,24 +73,25 @@ class databaseHandler {
      * 
      * @param {Object} user - User schemas
      */
-    async addUserDB(user){
-        if (!positions.includes(user.position)){
-            console.error('Unknown Position');
-            return;
-        }
+    async addUserDB(user, password){
 
-        if (user.status.length>40){
-            console.error('Status is too long (max 40)');
-            return;
-        }
         let query = `INSERT INTO user(name, email, picture,
-                status, companies, linkedin, position)`;
+                status, companies, linkedin, position, state)`;
         query += `VALUES('${user.name}', '${user.email}', '${user.picture}', 
                 '${user.status}', '${user.companies.join()}',
-                '${user.linkedin}','${user.position}')`;
+                '${user.linkedin}','${user.position}', '${user.state}')`;
         this.con.query(query,  function (err, result){
             if (err) throw err;
             console.log(`[USER] ${user.name} succesully added`);
+        });
+
+        var hash = crypto.createHash('md5').update(password).digest('hex');
+        query = `INSERT INTO userpw(name, password)`;
+        query += `VALUES('${user.name}', '${hash}')`;
+
+        this.con.query(query,  function (err, result){
+            if (err) throw err;
+            console.log(`[PASSWORDUSER] ${user.name} succesully added`);
         });
     }
 
@@ -97,27 +100,27 @@ class databaseHandler {
      * 
      * @param {Object} company - Company schemas
      */
-    async addCompanyDB(company){
-        if (!industries.includes(company.industries)){
-            console.error('Unknown Industry');
-            return;
-        }
-
-        if (company.description.length>40){
-            console.error('Description is too long (max 40)');
-            return;
-        }
-
+    async addCompanyDB(company, password){
         let query = `INSERT INTO company(name, logo, background_image,
                 founded_on,email, description, industries, 
-                activities, individuals)`;
+                activities, individuals, state)`;
         query += `VALUES('${company.name}', '${company.logo}', '${company.background_image}',
                 '${company.founded_on}', '${company.email}', 
                 '${company.description}', '${company.industries}',
-                '${company.activities.join()}','${company.individuals.join()}')`;
+                '${company.activities.join()}','${company.individuals.join()}', '${company.state}')`;
         this.con.query(query,  function (err, result){
             if (err) throw err;
             console.log(`[COMPANY] ${company.name} succesully added`);
+        });
+
+        var hash = crypto.createHash('md5').update(password).digest('hex');
+
+        query = `INSERT INTO companypw(name, password)`;
+        query += `VALUES('${company.name}', '${hash}')`;
+
+        this.con.query(query,  function (err, result){
+            if (err) throw err;
+            console.log(`[PASSWORDCOMPANY] ${company.name} succesully added`);
         });
     }
 
@@ -127,10 +130,6 @@ class databaseHandler {
      * @param {Object} activity - Activity schemas
      */
     async addActivityDB(activity){
-        if (!type.includes(activity.type)){
-            console.error('Unknown activity type');
-            return;
-        }
         let query = `INSERT INTO activity(date, time, text,
                 media, type, company)`;
         query += `VALUES('${activity.date}', '${activity.time}', 
@@ -148,12 +147,6 @@ class databaseHandler {
      * @param {Object} event - Event schemas
      */
     async addEventDB(event){
-
-        if (event.description.length>40){
-            console.error('Description is too long (max 40)');
-            return;
-        }
-
         let query = `INSERT INTO event(name, date, time, 
                 place, description, companies, activities)`;
         query += `VALUES('${event.name}','${event.date}', 
@@ -162,6 +155,31 @@ class databaseHandler {
         this.con.query(query,  function (err, result){
             if (err) throw err;
             console.log(`[EVENT] ${event.name}... succesully added`);
+        });
+    }
+
+    /**
+     * VERIFY THE EXISTENCE OF A USER
+     * 
+     * @param {String} name - username
+     * @param {String} password - password
+     */
+    async verifyUser(name, password, callback){
+        var hash = crypto.createHash('md5').update(password).digest('hex');
+        let query = `SELECT EXISTS(SELECT * FROM userpw WHERE `;
+        query += `(name = '${name}' AND password = '${hash}'))`;
+        this.con.query(query,  function (err, result){
+            if (err) throw err;
+            var rows = JSON.parse(JSON.stringify(result[0]));
+            let out = false;
+            for (var i  in rows){
+                if (rows == 1){
+                    out = true;
+                }
+            }
+            
+            console.log(rows)
+            return callback(true);
         });
     }
 }
