@@ -178,8 +178,7 @@ class databaseHandler {
                 }
             }
             
-            console.log(rows)
-            return callback(true);
+            return callback(out);
         });
     }
     /**
@@ -197,13 +196,11 @@ class databaseHandler {
             var rows = JSON.parse(JSON.stringify(result[0]));
             let out = false;
             for (var i  in rows){
-                if (rows == 1){
+                if (rows[i] === 1){
                     out = true;
                 }
             }
-            
-            console.log(rows)
-            return callback(true);
+            return callback(out);
         });
     }
 }

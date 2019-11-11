@@ -39,7 +39,11 @@ router.post("/api/v1/sign-in-user", (req, res, next) => {
     db.verifyUser(username, password, (result) => {
         console.log(result);
         if (result){
+            //Need to send user cookie
             res.send('you are logged in');
+        }
+        else{
+            res.send('cannot find your account')
         }
     })
 });
@@ -50,7 +54,11 @@ router.post("/api/v1/sign-in-company", (req, res, next) => {
     db.verifyCompany(username, password, (result) => {
         console.log(result);
         if (result){
+            //Need to send company cookie
             res.send('you are logged in as company');
+        }
+        else{
+            res.send('cannot find your account')
         }
     })
 });
