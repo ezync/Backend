@@ -4,12 +4,14 @@ const { type ,positions,industries} = require('../constants.js')
 const {companySchemas, userSchemas,
     activitySchemas, eventSchemas} = require('../schemas.js')
 const dbHandler = require('../dbHandler.js');
+const crypto = require('crypto');
 
 const db = new dbHandler();
 
 db.start()
 
 const router = require('express').Router();
+const session = require('express-session');
 
 router.post("/api/v1/sign-up-user", async (req, res, next) => {
     console.log(req.body)
@@ -39,8 +41,20 @@ router.post("/api/v1/sign-in-user", (req, res, next) => {
     db.verifyUser(username, password, (result) => {
         console.log(result);
         if (result){
-            //Need to send user cookie
-            res.send('you are logged in');
+            var hash = crypto.createHash('md5').update(password).digest('hex');
+            router.use(session({
+                resave: true,
+                saveUninitialized: true,
+                user:username,
+                secret: hash,
+                company:false,
+                loggedin : true,
+                cookie:{
+                    maxAge:60000
+                }
+                
+            }));
+            res.redirect('user/home')
         }
         else{
             res.send('cannot find your account')
@@ -48,20 +62,46 @@ router.post("/api/v1/sign-in-user", (req, res, next) => {
     })
 });
 
+
+
 router.post("/api/v1/sign-in-company", (req, res, next) => {
     var password = req.body.pw;
     var username = req.body.name;
     db.verifyCompany(username, password, (result) => {
         console.log(result);
         if (result){
-            //Need to send company cookie
-            res.send('you are logged in as company');
+            var hash = crypto.createHash('md5').update(password).digest('hex');
+            router.use(session({
+                resave: true,
+                saveUninitialized: true,
+                user:username,
+                secret: hash,
+                company:true,
+                logged:true,
+                cookie:{
+                    maxAge:60000
+                }
+            }));
+            res.redirect('company/home');
+            //res.send('you are logged in as company');
         }
         else{
             res.send('cannot find your account')
         }
     })
 });
+
+router.get("user/home" ,(req, res, next) => {
+    if (req.session.loggedin){
+        res.send("you are logged in")
+    }    
+})
+
+router.get("company/home" ,(req, res, next) => {
+    if (req.session.loggedin){
+        res.send("you are logged in as company")
+    }    
+})
 
 router.get('/logout', (req, res) =>{
     //handle with passport

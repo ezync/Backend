@@ -1,5 +1,6 @@
 const express = require('express');
 const _ = require('lodash');
+
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth-routes.js');
 const { type ,positions,industries} = require('./constants.js')

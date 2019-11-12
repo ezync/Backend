@@ -166,6 +166,7 @@ class databaseHandler {
      */
     async verifyUser(name, password, callback){
         var hash = crypto.createHash('md5').update(password).digest('hex');
+        console.log(name, hash)
         let query = `SELECT EXISTS(SELECT * FROM userpw WHERE `;
         query += `(name = '${name}' AND password = '${hash}'))`;
         this.con.query(query,  function (err, result){
@@ -173,7 +174,7 @@ class databaseHandler {
             var rows = JSON.parse(JSON.stringify(result[0]));
             let out = false;
             for (var i  in rows){
-                if (rows == 1){
+                if (rows[i] === 1){
                     out = true;
                 }
             }
